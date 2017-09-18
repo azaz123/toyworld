@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.toyworld</groupId>
+  <artifactId>toyworld</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>toyworld</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.build.timestamp.format>yyyy-MM-dd-HH_mm_ss</maven.build.timestamp.format>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+    </dependency>
+  </dependencies>
+  <build>
+        <!-- finalName>${artifactId}-${version}-${buildNumber}</finalName -->
+        <finalName>${project.artifactId}-${maven.build.timestamp}</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>**/.svn/**</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/.svn/**</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+		
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<sourceExcludes>
+						<sourceExclude>**/.svn/**</sourceExclude>
+					</sourceExcludes>
+					<downloadSources>true</downloadSources>
+					<outputDirectory>classes</outputDirectory>
+					<additionalConfig>
+						<file>
+							<name>.settings/org.eclipse.core.resources.prefs</name>
+							<content>
+               <![CDATA[eclipse.preferences.version=1${line.separator}encoding/<project>=${app.encoding}${line.separator}]]>
+							</content>
+						</file>
+					</additionalConfig>
+				</configuration>
+			</plugin>
+	        <!-- The configuration of maven-jar-plugin -->  
+	        <plugin>  
+	            <groupId>org.apache.maven.plugins</groupId>  
+	            <artifactId>maven-jar-plugin</artifactId>  
+	            <version>2.4</version>  
+	            <!-- The configuration of the plugin -->  
+	            <configuration>  
+	                <!-- Configuration of the archiver -->  
+	                <archive>  
+	                    <!--   生成的jar中，不要包含pom.xml和pom.properties这两个文件 -->  
+	                    <addMavenDescriptor>false</addMavenDescriptor>  
+	  
+	                    <!-- Manifest specific configuration -->  
+	                    <manifest>  
+	                        <!--    是否要把第三方jar放到manifest的classpath中  -->  
+	                        <addClasspath>false</addClasspath>  
+	                        <!--    生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下，所以classpath的前缀是lib/   -->
+	                        <classpathPrefix>lib/</classpathPrefix>   
+	                    </manifest>  
+	                </archive>  
+	                		<!--  过滤掉不希望包含在jar中的文件 -->  
+	                <excludes>  
+	                    <exclude>${project.basedir}/xml/*</exclude>
+	                    <exclude>${project.basedir}\src\main\resources</exclude>
+	                </excludes>  
+	            </configuration>
+	        </plugin>
+		</plugins>
+		
+  </build>
+</project>
