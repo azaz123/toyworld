@@ -6,12 +6,11 @@ import java.nio.channels.SocketChannel;
 
 import org.toyworld.Itoycomponent.Itoycomponent;
 import org.toyworld.Itoycomponent.toycomponent;
-import org.toyworld.client.client;
 import java.util.function.Consumer;
 import org.toyworld.toycontext.onecontext;
 import org.toyworld.writer.writerlogical;
 import org.toyworld.reader.readerlogical;
-
+import org.toyworld.session.clientsession;
 
 import java.io.BufferedReader;  
 import java.io.File;  
@@ -26,6 +25,7 @@ import java.io.Reader;
 
 
 
+
 public class controler extends toycomponent implements Itoycomponent {
 	Consumer<SelectionKey> pushreaderfun = null;
 	Consumer<SelectionKey> pushwriterfun = null;
@@ -34,12 +34,10 @@ public class controler extends toycomponent implements Itoycomponent {
 	
 	{
 		pushreaderfun = (key) -> {
-			client c = (client)key.attachment();
+			clientsession session = (clientsession)key.attachment();
 			key.interestOps(key.interestOps() & ~SelectionKey.OP_READ);
 			rundata.rTrack.add(key);
 			rundata.readeventq.remove(key);
-			readerlogical t = (readerlogical)c.reader;
-			t.setkeydata(key);
 /*			
 			ByteBuffer tmp = ByteBuffer.wrap("test".getBytes());
 			System.out.println(tmp.toString());
@@ -50,17 +48,19 @@ public class controler extends toycomponent implements Itoycomponent {
 				
 			}
 	*/		
-			rundata.executor.execute(c.reader);
+			readerlogical t = (readerlogical)session.reader;
+	        t.setsessiondata(session);
+			rundata.executor.execute(session.reader);
 		};
 		
 		pushwriterfun = (key) -> {
-			client c = (client)key.attachment();
+			clientsession session = (clientsession)key.attachment();
 			key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
 			rundata.wTrack.add(key);
 			rundata.writeeventq.remove(key);
-			writerlogical t = (writerlogical)c.writer;
-			t.setkeydata(key);
-			rundata.executor.execute(c.writer);
+			writerlogical t = (writerlogical)session.writer;
+	        t.setsessiondata(session);
+			rundata.executor.execute(session.writer);
 		};
 		
 		reActiveread = (key) -> {
@@ -79,11 +79,7 @@ public class controler extends toycomponent implements Itoycomponent {
 					  
 					  rundata.readeventq.stream()
 					  .peek(pushreaderfun)
-					  .count();
-					  
-					  
-
-					  
+					  .count();					   
 					  
 					  rundata.writeeventq.stream()
 					  .filter(key -> rundata.writerequestq.contains(key))

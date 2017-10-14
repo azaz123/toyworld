@@ -13,6 +13,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.toyworld.Itoycomponent.Itoycomponent;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.toyworld.toymarket.*;
+
+
 /**
  * toy context
  * @author hu.ruizhe
@@ -31,8 +34,12 @@ public class onecontext {
     public  ExecutorService executor;
     public  CopyOnWriteArrayList<SelectionKey> wTrack;
     public  CopyOnWriteArrayList<SelectionKey> rTrack;
+    public  String     skey;
+    public  static toymarket market = new toymarket();
     
-    
+    static{
+    	market.initial();
+    }
     {
     	clientq = new ArrayBlockingQueue<SocketChannel>(1024);
     	readeventq = new ArrayBlockingQueue<SelectionKey>(1024);

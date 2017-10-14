@@ -1,0 +1,6 @@
+modulerootpath: pathvalue
+protocolmodules: 
+    - minihttp: org.toyworld.protocol.http.minihttp
+    - liner: org.toyworld.protocol.line.liner
+handlemodules: 
+    - minihttphandle: org.toyworld.testhandle.testhandle

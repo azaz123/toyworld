@@ -9,12 +9,11 @@ import org.toyworld.toycontext.onecontext;
 
 public class writer extends toycomponent implements Itoycomponent {
     
-	{
-		logical = new writerlogical();
-	}
+
 	@Override
 	public Runnable getRunnable() {
 		// TODO Auto-generated method stub
+		logical = new writerlogical();
 		return logical;
 	}
 
@@ -22,8 +21,6 @@ public class writer extends toycomponent implements Itoycomponent {
 	public void bindData(onecontext data) {
 		// TODO Auto-generated method stub
 		rundata = data;
-		writerlogical tmp = (writerlogical)logical;
-		tmp.setrundata(rundata);
 	}
 
 }

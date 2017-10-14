@@ -3,46 +3,50 @@ package org.toyworld.reader;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 
-import org.toyworld.client.client;
+import org.toyworld.session.clientsession;
 import org.toyworld.toycontext.onecontext;
+import org.toyworld.api.serviceparams;
 
 
 public class readerlogical implements Runnable {
-	public onecontext rundata = null;
-	public SelectionKey keydata = null;
+	public clientsession sessiondata = null;
+
 	
-	public void setrundata(onecontext data) {
-		rundata = data;
-	}
-	
-	public void setkeydata(SelectionKey key) {
-		keydata = key;
+	public void setsessiondata(clientsession sdata) {
+		sessiondata = sdata;
 	}
 	
 	public void run() {
-		client c = (client)keydata.attachment();
 		int reccount =0;
 		try{
-			if(c.readbuf.hasRemaining()){
-				reccount = c.socketchannel.read(c.readbuf);
+			if(sessiondata.readbuf.hasRemaining()){
+				reccount = sessiondata.socketchannel.read(sessiondata.readbuf);
 				if(reccount == -1){
-					System.out.println("client disconnected: "+ keydata.channel().toString());
-					keydata.cancel();
+					System.out.println("client disconnected: "+ sessiondata.keydata.channel().toString());
+					sessiondata.keydata.cancel();
+				}else {
+					//push service
+					serviceparams param = new serviceparams();
+					param.session = sessiondata;
+					sessiondata.getservice().Excute(param);
 				}
-				//push service
+
 			}
 			else{
 				
-				c.readbuf.clear();
-				reccount = c.socketchannel.read(c.readbuf);
-				//push service
-				System.out.println(c.readbuf.toString());
+				sessiondata.readbuf.clear();
+				reccount = sessiondata.socketchannel.read(sessiondata.readbuf);
+				System.out.println(sessiondata.readbuf.toString());
+				serviceparams param = new serviceparams();
+				param.session = sessiondata;
+				sessiondata.getservice().Excute(param);
 			}
 			
 		}catch(IOException ex){
-			
+			ex.printStackTrace();
+			sessiondata.keydata.cancel();
 		}finally{
-			rundata.rkeyset.remove(keydata.hashCode());
+			sessiondata.rundata.rkeyset.remove(sessiondata.keydata.hashCode());
 		}
 		
 	}

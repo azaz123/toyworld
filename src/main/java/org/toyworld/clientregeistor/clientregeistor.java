@@ -8,8 +8,14 @@ import java.util.Set;
 import org.toyworld.Itoycomponent.Itoycomponent;
 import org.toyworld.Itoycomponent.toycomponent;
 import org.toyworld.toycontext.onecontext;
-import org.toyworld.client.client;
 import java.util.function.Consumer;
+import org.toyworld.api.protocol;
+import org.toyworld.api.servicehandle;
+import org.toyworld.api.serviceparams;
+import org.toyworld.protocol.http.minihttp;
+import org.toyworld.protocol.http.minihttphandleparams;
+import org.toyworld.session.clientsession;
+import org.toyworld.publicmodule.*;
 
 public class clientregeistor extends toycomponent implements Itoycomponent {
 	Consumer<SocketChannel> registerfun = null;
@@ -18,12 +24,11 @@ public class clientregeistor extends toycomponent implements Itoycomponent {
 			
 			try{
 				SelectionKey s = sock.register(rundata.selector,SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-				Runnable writer = rundata.getcomponent("writer");
-				Runnable reader = rundata.getcomponent("reader");
-				client c = new client(writer,reader,sock);
-				s.attach(c);
+				clientsession session = sessionmgr.createsession(rundata, s, sock);
+				servicemgr.bindservice(rundata, session);
+				//sock.write(ByteBuffer.wrap("welecome hrz telnet server...".getBytes()));
+				s.attach(session);
 				rundata.clientq.remove(sock);
-				sock.write(ByteBuffer.wrap("welecom to hrz telnet.... \r\n".getBytes()));
 				System.out.println("one client connected");
 			}catch(Exception ex){
 				ex.printStackTrace(); 

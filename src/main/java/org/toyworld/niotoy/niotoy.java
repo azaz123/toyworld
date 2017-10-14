@@ -10,6 +10,7 @@ import org.toyworld.clientregeistor.*;
 import org.toyworld.controler.*;
 import org.toyworld.writer.*;
 import org.toyworld.reader.*;
+import org.toyworld.api.service;
 
 
 
@@ -51,8 +52,8 @@ public class niotoy {
 		context.createserver(port);
 	}
 	
-	public void bindservice(){
-		
+	public void bindservice(String skey){
+		context.skey = skey;
 	}
 	
     public void play(){

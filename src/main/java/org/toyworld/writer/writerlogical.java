@@ -7,21 +7,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import org.toyworld.client.client;
 import org.toyworld.toycontext.onecontext;
+import org.toyworld.session.clientsession;
 
 
 
 public class writerlogical implements Runnable {
 
-	public onecontext rundata = null;
-	public SelectionKey keydata = null;
-	public CopyOnWriteArrayList<ByteBuffer> Writeq = new CopyOnWriteArrayList<ByteBuffer>();
-	public CopyOnWriteArrayList<ByteBuffer> unFinishedWriteq = new CopyOnWriteArrayList<ByteBuffer>();
-	private byte[] willWrite; 
+	public clientsession sessiondata = null;
 	private Consumer<ByteBuffer> unFinishedFunc = null;
 	private Consumer<ByteBuffer> unWiteqFunc = null;
-	private client c = null;
 	
 	
 	
@@ -29,19 +24,19 @@ public class writerlogical implements Runnable {
 		
 		unWiteqFunc = (b) ->{
 			try{
-				c.socketchannel.write(b);
+				sessiondata.socketchannel.write(b);
 				if(!b.hasRemaining()){
-					Writeq.remove(b);
+					sessiondata.Writeq.remove(b);
 					//b.flip();
-					Writeq.stream()
+					sessiondata.Writeq.stream()
 					.filter(d -> d.hasRemaining())
 					.limit(1)
 					.peek(unWiteqFunc)
 					.count();
 				}
 				else{
-					unFinishedWriteq.add(b);
-					Writeq.remove(b);
+					sessiondata.unFinishedWriteq.add(b);
+					sessiondata.Writeq.remove(b);
 				}
 			}catch(IOException ex){
 				
@@ -51,16 +46,16 @@ public class writerlogical implements Runnable {
 		
 		unFinishedFunc = (b) ->{
 			try{
-				c.socketchannel.write(b);
+				sessiondata.socketchannel.write(b);
 				if(!b.hasRemaining()){
 					//b.flip();
-					Writeq.stream()
+					sessiondata.Writeq.stream()
 					.filter(d -> d.hasRemaining())
 					.limit(1)
 					.peek(unWiteqFunc)
 					.count();
 					
-					unFinishedWriteq.remove(b);
+					sessiondata.unFinishedWriteq.remove(b);
 				}
 			}catch(IOException ex){
 				
@@ -69,32 +64,27 @@ public class writerlogical implements Runnable {
 		};
 	}
 	
-	public void setrundata(onecontext data) {
-		rundata = data;
-	}
 	
-	public void setkeydata(SelectionKey key) {
-		keydata = key;
-		c = (client)keydata.attachment();
-		willWrite = c.popdata();
+	public void setsessiondata(clientsession sdata) {
+		sessiondata = sdata;
 	}
 	
 
 	public void run() {
 		int nRet = 0;
-		client c = (client)keydata.attachment();
 		try{
-			Writeq.add(ByteBuffer.wrap(willWrite));
-			if(unFinishedWriteq.stream().count() == 0){
+			sessiondata.willWrite = sessiondata.getwillwritedata();
+			sessiondata.Writeq.add(ByteBuffer.wrap(sessiondata.willWrite));
+			if(sessiondata.unFinishedWriteq.stream().count() == 0){
 				
-				Writeq.stream()
+				sessiondata.Writeq.stream()
 				.filter(d -> d.hasRemaining())
 				.limit(1)
 				.peek(unWiteqFunc)
 				.count();
 			}
 			else{
-				unFinishedWriteq.stream()
+				sessiondata.unFinishedWriteq.stream()
 				.filter(b -> b.hasRemaining())
 				.limit(1)
 				.peek(unFinishedFunc)
@@ -103,9 +93,9 @@ public class writerlogical implements Runnable {
 			
 
 		}finally{
-			rundata.wkeyset.remove(keydata.hashCode());
-			if(Writeq.isEmpty() && unFinishedWriteq.isEmpty()){
-				rundata.writerequestq.remove(keydata);
+			sessiondata.rundata.wkeyset.remove(sessiondata.keydata.hashCode());
+			if(sessiondata.Writeq.isEmpty() && sessiondata.unFinishedWriteq.isEmpty()){
+				sessiondata.rundata.writerequestq.remove(sessiondata.keydata);
 			}
 		}
 		

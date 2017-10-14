@@ -7,14 +7,12 @@ import org.toyworld.toycontext.onecontext;
 
 
 public class reader extends toycomponent implements Itoycomponent {
-     {
-    	logical = new readerlogical();
-    }
 	
 	
 	@Override
 	public Runnable getRunnable() {
 		// TODO Auto-generated method stub
+		logical = new readerlogical();
 		return logical;
 	}
 
@@ -22,8 +20,6 @@ public class reader extends toycomponent implements Itoycomponent {
 	public void bindData(onecontext data) {
 		// TODO Auto-generated method stub
 		rundata = data;
-		readerlogical tmp = (readerlogical)logical;
-		tmp.setrundata(rundata);
 	}
 
 }
